@@ -1,13 +1,39 @@
 const Hapi = require('@hapi/hapi');
+const Jwt = require('@hapi/jwt');
 const ClientError = require('../../Commons/exceptions/ClientError');
 const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTranslator');
 const users = require('../../Interfaces/http/api/users');
 const authentications = require('../../Interfaces/http/api/authentications');
+const threads = require('../../Interfaces/http/api/threads');
 
 const createServer = async (injections) => {
   const server = Hapi.server({
     host: process.env.HOST,
     port: process.env.PORT,
+  });
+
+  // registrasi plugin eksternal
+  await server.register([
+    {
+      plugin: Jwt,
+    },
+  ]);
+
+  // mendefinisikan strategy autentikasi jwt
+  server.auth.strategy('forumapi_jwt', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
   });
 
   await server.register([
@@ -17,6 +43,10 @@ const createServer = async (injections) => {
     },
     {
       plugin: authentications,
+      options: { injections },
+    },
+    {
+      plugin: threads,
       options: { injections },
     },
   ]);
@@ -35,6 +65,7 @@ const createServer = async (injections) => {
           status: 'fail',
           message: translatedError.message,
         });
+
         newResponse.code(translatedError.statusCode);
         return newResponse;
       }
@@ -49,6 +80,7 @@ const createServer = async (injections) => {
         status: 'error',
         message: 'terjadi kegagalan pada server kami',
       });
+
       newResponse.code(500);
       return newResponse;
     }
