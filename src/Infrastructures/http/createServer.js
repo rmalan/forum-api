@@ -5,6 +5,7 @@ const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTrans
 const users = require('../../Interfaces/http/api/users');
 const authentications = require('../../Interfaces/http/api/authentications');
 const threads = require('../../Interfaces/http/api/threads');
+const comments = require('../../Interfaces/http/api/comments');
 
 const createServer = async (injections) => {
   const server = Hapi.server({
@@ -47,6 +48,10 @@ const createServer = async (injections) => {
     },
     {
       plugin: threads,
+      options: { injections },
+    },
+    {
+      plugin: comments,
       options: { injections },
     },
   ]);
