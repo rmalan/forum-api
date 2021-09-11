@@ -1,7 +1,9 @@
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const DetailThread = require('../../../Domains/threads/entities/DetailThread');
+const DetailComment = require('../../../Domains/comments/entities/DetailComment');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
+const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const ThreadUseCase = require('../ThreadUseCase');
 
 describe('ThreadUseCase', () => {
@@ -51,24 +53,37 @@ describe('ThreadUseCase', () => {
       date: '2021-09-08T07:19:09.775Z',
       username: 'dicoding',
     });
+    const expectedDetailComment = [
+      new DetailComment({
+        id: 'comment-123',
+        username: 'dicoding',
+        date: '2021-09-08T07:19:09.775Z',
+        content: 'NewComment content',
+        isDelete: false,
+      }),
+    ];
 
     /** creating dependency of use case */
     const mockThreadRepository = new ThreadRepository();
+    const mockCommentRepository = new CommentRepository();
 
     /** mocking needed function */
     mockThreadRepository.getThreadById = jest.fn()
       .mockImplementation(() => Promise.resolve(expectedDetailThread));
+    mockCommentRepository.getCommentsByThreadId = jest.fn()
+      .mockImplementation(() => Promise.resolve(expectedDetailComment));
 
     /** creating use case instance */
     const threadUseCase = new ThreadUseCase({
       threadRepository: mockThreadRepository,
+      commentRepository: mockCommentRepository,
     });
 
     // Action
-    const detailThread = await threadUseCase.getThreadById(fakeThread);
+    await threadUseCase.getThreadById(fakeThread);
 
     // Assert
-    expect(detailThread).toStrictEqual(expectedDetailThread);
     expect(mockThreadRepository.getThreadById).toBeCalledWith(fakeThread);
+    expect(mockCommentRepository.getCommentsByThreadId).toBeCalledWith(fakeThread);
   });
 });

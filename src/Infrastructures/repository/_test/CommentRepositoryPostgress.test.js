@@ -4,6 +4,7 @@ const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelp
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
+const DetailComment = require('../../../Domains/comments/entities/DetailComment');
 const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
@@ -136,6 +137,36 @@ describe('CommentRepositoryPostgres', () => {
 
         // Assert
         expect(deleteComment).toBe();
+      });
+    });
+
+    describe('getCommentsByThreadId function', () => {
+      it('should persist get comments by thread id and return detail comments correctly', async () => {
+        // Arrange
+        const threadId = 'thread-123';
+        const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+        await UsersTableTestHelper.addUser({});
+        await ThreadsTableTestHelper.addThread({});
+        await CommentsTableTestHelper.addComment({ date: '2021-09-08T07:19:09.775Z' });
+
+        // Action
+        const detailComments = await commentRepositoryPostgres.getCommentsByThreadId(threadId);
+
+        // Assert
+        const comments = await CommentsTableTestHelper.findCommentsByThreadId('thread-123');
+        expect(detailComments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining(new DetailComment({
+              id: 'comment-123',
+              username: 'dicoding',
+              date: '2021-09-08T07:19:09.775Z',
+              content: 'NewComment content',
+              isDelete: false,
+            })),
+          ]),
+        );
+        expect(comments).toHaveLength(1);
       });
     });
   });
