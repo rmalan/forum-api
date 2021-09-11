@@ -104,6 +104,35 @@ describe('/threads/{threadId}/comments endpoint', () => {
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual('tidak dapat menambahkan komentar baru karena tipe data tidak sesuai');
     });
+
+    it('should response 404 when thread not found', async () => {
+      const payload = {
+        content: 'NewComment content',
+      };
+      const server = await createServer(injections);
+
+      await UsersTableTestHelper.addUser({});
+      await ThreadsTableTestHelper.addThread({});
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads/thread-1234/comments',
+        payload,
+        auth: {
+          strategy: 'forumapi_jwt',
+          credentials: {
+            id: 'user-123',
+          },
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('thread tidak ditemukan');
+    });
   });
 
   describe('when DELETE /threads/{threadId}/comments/{commentId}', () => {
@@ -156,6 +185,30 @@ describe('/threads/{threadId}/comments endpoint', () => {
       expect(response.statusCode).toEqual(403);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual('Anda tidak berhak mengakses resource ini');
+    });
+
+    it('should response 404 when thread not found', async () => {
+      const server = await createServer(injections);
+
+      await UsersTableTestHelper.addUser({});
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: '/threads/thread-1234/comments/comment-123',
+        auth: {
+          strategy: 'forumapi_jwt',
+          credentials: {
+            id: 'user-123',
+          },
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('thread tidak ditemukan');
     });
 
     it('should response 404 when comment not found', async () => {

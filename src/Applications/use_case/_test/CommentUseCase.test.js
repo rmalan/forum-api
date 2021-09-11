@@ -1,5 +1,6 @@
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
+const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const CommentUseCase = require('../CommentUseCase');
 
@@ -18,14 +19,18 @@ describe('CommentUseCase', () => {
     });
 
     /** creating dependency of use case */
+    const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
 
     /** mocking needed function */
+    mockThreadRepository.getThreadById = jest.fn()
+      .mockImplementation(() => Promise.resolve());
     mockCommentRepository.addComment = jest.fn()
       .mockImplementation(() => Promise.resolve(expectedAddedComment));
 
     /** creating use case instance */
     const commentUseCase = new CommentUseCase({
+      threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
     });
 
@@ -34,6 +39,7 @@ describe('CommentUseCase', () => {
 
     // Assert
     expect(addedComment).toStrictEqual(expectedAddedComment);
+    expect(mockThreadRepository.getThreadById).toBeCalledWith(fakeThread);
     expect(mockCommentRepository.addComment).toBeCalledWith(new NewComment({
       content: useCasePayload.content,
     }), fakeThread, fakeOwner);
@@ -46,9 +52,12 @@ describe('CommentUseCase', () => {
     const fakeComment = 'comment-123';
 
     /** creating dependency of use case */
+    const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
 
     /** mocking needed function */
+    mockThreadRepository.getThreadById = jest.fn()
+      .mockImplementation(() => Promise.resolve());
     mockCommentRepository.verifyCommentOwner = jest.fn()
       .mockImplementation(() => Promise.resolve());
     mockCommentRepository.deleteComment = jest.fn()
@@ -56,6 +65,7 @@ describe('CommentUseCase', () => {
 
     /** creating use case instance */
     const commentUseCase = new CommentUseCase({
+      threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
     });
 
@@ -63,6 +73,7 @@ describe('CommentUseCase', () => {
     await commentUseCase.deleteComment(fakeComment, fakeThread, fakeOwner);
 
     // Assert
+    expect(mockThreadRepository.getThreadById).toBeCalledWith(fakeThread);
     expect(mockCommentRepository.verifyCommentOwner).toBeCalledWith(fakeComment, fakeOwner);
     expect(mockCommentRepository.deleteComment).toBeCalledWith(fakeComment);
   });
