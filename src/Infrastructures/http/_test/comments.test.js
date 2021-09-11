@@ -5,7 +5,7 @@ const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelp
 const injections = require('../../injections');
 const createServer = require('../createServer');
 
-describe('/comments endpoint', () => {
+describe('/threads/{threadId}/comments endpoint', () => {
   afterAll(async () => {
     await pool.end();
   });
@@ -103,6 +103,84 @@ describe('/comments endpoint', () => {
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual('tidak dapat menambahkan komentar baru karena tipe data tidak sesuai');
+    });
+  });
+
+  describe('when DELETE /threads/{threadId}/comments/{commentId}', () => {
+    it('should response 200 and deleted comment', async () => {
+      const server = await createServer(injections);
+
+      await UsersTableTestHelper.addUser({});
+      await ThreadsTableTestHelper.addThread({});
+      await CommentsTableTestHelper.addComment({});
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: '/threads/thread-123/comments/comment-123',
+        auth: {
+          strategy: 'forumapi_jwt',
+          credentials: {
+            id: 'user-123',
+          },
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+    });
+
+    it('should response 403 when comment it is not the owner', async () => {
+      const server = await createServer(injections);
+
+      await UsersTableTestHelper.addUser({});
+      await ThreadsTableTestHelper.addThread({});
+      await CommentsTableTestHelper.addComment({});
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: '/threads/thread-123/comments/comment-123',
+        auth: {
+          strategy: 'forumapi_jwt',
+          credentials: {
+            id: 'user-1234',
+          },
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('Anda tidak berhak mengakses resource ini');
+    });
+
+    it('should response 404 when comment not found', async () => {
+      const server = await createServer(injections);
+
+      await UsersTableTestHelper.addUser({});
+      await ThreadsTableTestHelper.addThread({});
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: '/threads/thread-123/comments/comment-123',
+        auth: {
+          strategy: 'forumapi_jwt',
+          credentials: {
+            id: 'user-123',
+          },
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('komentar tidak ditemukan');
     });
   });
 });

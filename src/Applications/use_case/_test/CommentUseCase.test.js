@@ -38,4 +38,32 @@ describe('CommentUseCase', () => {
       content: useCasePayload.content,
     }), fakeThread, fakeOwner);
   });
+
+  it('should orchestrating the delete comment action correctly', async () => {
+    // Arrange
+    const fakeOwner = 'user-123';
+    const fakeThread = 'thread-123';
+    const fakeComment = 'comment-123';
+
+    /** creating dependency of use case */
+    const mockCommentRepository = new CommentRepository();
+
+    /** mocking needed function */
+    mockCommentRepository.verifyCommentOwner = jest.fn()
+      .mockImplementation(() => Promise.resolve());
+    mockCommentRepository.deleteComment = jest.fn()
+      .mockImplementation(() => Promise.resolve());
+
+    /** creating use case instance */
+    const commentUseCase = new CommentUseCase({
+      commentRepository: mockCommentRepository,
+    });
+
+    // Action
+    await commentUseCase.deleteComment(fakeComment, fakeThread, fakeOwner);
+
+    // Assert
+    expect(mockCommentRepository.verifyCommentOwner).toBeCalledWith(fakeComment, fakeOwner);
+    expect(mockCommentRepository.deleteComment).toBeCalledWith(fakeComment);
+  });
 });

@@ -3,6 +3,7 @@ class CommentsHandler {
     this._commentUseCase = commentUseCase;
 
     this.postCommentHandler = this.postCommentHandler.bind(this);
+    this.deleteCommentHandler = this.deleteCommentHandler.bind(this);
   }
 
   async postCommentHandler(request, h) {
@@ -20,6 +21,20 @@ class CommentsHandler {
     });
 
     response.code(201);
+    return response;
+  }
+
+  async deleteCommentHandler(request, h) {
+    const { threadId, commentId } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+
+    await this._commentUseCase.deleteComment(commentId, threadId, credentialId);
+
+    const response = h.response({
+      status: 'success',
+    });
+
+    response.code(200);
     return response;
   }
 }
