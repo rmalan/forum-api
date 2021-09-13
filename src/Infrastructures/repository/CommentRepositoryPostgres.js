@@ -67,6 +67,19 @@ class CommentRepositoryPostgres extends CommentRepository {
       isDelete: payload.is_delete,
     })));
   }
+
+  async getCommentById(commentId) {
+    const query = {
+      text: 'SELECT * FROM comments WHERE id = $1',
+      values: [commentId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new NotFoundError('komentar tidak ditemukan');
+    }
+  }
 }
 
 module.exports = CommentRepositoryPostgres;

@@ -169,5 +169,18 @@ describe('CommentRepositoryPostgres', () => {
         expect(comments).toHaveLength(1);
       });
     });
+
+    describe('getCommentById function', () => {
+      it('should throw NotFoundError when comment not exist', async () => {
+        // Arrange
+        const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+        // Action
+        const detailComment = commentRepositoryPostgres.getCommentById('comment-1234');
+
+        // Assert
+        await expect(detailComment).rejects.toThrowError(NotFoundError);
+      });
+    });
   });
 });
