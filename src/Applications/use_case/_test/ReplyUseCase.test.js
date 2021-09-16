@@ -53,4 +53,43 @@ describe('ReplyUseCase', () => {
       content: useCasePayload.content,
     }), fakeComment, fakeOwner);
   });
+
+  it('should orchestrating the delete reply action correctly', async () => {
+    // Arrange
+    const fakeOwner = 'user-123';
+    const fakeThread = 'thread-123';
+    const fakeComment = 'comment-123';
+    const fakeReply = 'reply-123';
+
+    /** creating dependency of use case */
+    const mockThreadRepository = new ThreadRepository();
+    const mockCommentRepository = new CommentRepository();
+    const mockReplyRepository = new ReplyRepository();
+
+    /** mocking needed function */
+    mockThreadRepository.getThreadById = jest.fn()
+      .mockImplementation(() => Promise.resolve());
+    mockCommentRepository.getCommentById = jest.fn()
+      .mockImplementation(() => Promise.resolve());
+    mockReplyRepository.verifyReplyOwner = jest.fn()
+      .mockImplementation(() => Promise.resolve());
+    mockReplyRepository.deleteReply = jest.fn()
+      .mockImplementation(() => Promise.resolve());
+
+    /** creating use case instance */
+    const replyUseCase = new ReplyUseCase({
+      threadRepository: mockThreadRepository,
+      commentRepository: mockCommentRepository,
+      replyRepository: mockReplyRepository,
+    });
+
+    // Action
+    await replyUseCase.deleteReply(fakeThread, fakeComment, fakeReply, fakeOwner);
+
+    // Assert
+    expect(mockThreadRepository.getThreadById).toBeCalledWith(fakeThread);
+    expect(mockCommentRepository.getCommentById).toBeCalledWith(fakeComment);
+    expect(mockReplyRepository.verifyReplyOwner).toBeCalledWith(fakeReply, fakeOwner);
+    expect(mockReplyRepository.deleteReply).toBeCalledWith(fakeReply);
+  });
 });

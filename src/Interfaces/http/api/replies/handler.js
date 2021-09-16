@@ -3,6 +3,7 @@ class RepliesHandler {
     this._replyUseCase = replyUseCase;
 
     this.postReplyHandler = this.postReplyHandler.bind(this);
+    this.deleteReplyHandler = this.deleteReplyHandler.bind(this);
   }
 
   async postReplyHandler(request, h) {
@@ -20,6 +21,20 @@ class RepliesHandler {
     });
 
     response.code(201);
+    return response;
+  }
+
+  async deleteReplyHandler(request, h) {
+    const { threadId, commentId, replyId } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+
+    await this._replyUseCase.deleteReply(threadId, commentId, replyId, credentialId);
+
+    const response = h.response({
+      status: 'success',
+    });
+
+    response.code(200);
     return response;
   }
 }
