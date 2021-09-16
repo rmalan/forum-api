@@ -23,6 +23,16 @@ const RepliesTableTestHelper = {
     return result.rows;
   },
 
+  async findRepliesByCommentId(commentId) {
+    const query = {
+      text: 'SELECT * FROM replies WHERE comment_id = $1',
+      values: [commentId],
+    };
+
+    const result = await pool.query(query);
+    return result.rows;
+  },
+
   async cleanTable() {
     await pool.query('DELETE FROM replies WHERE 1=1');
   },

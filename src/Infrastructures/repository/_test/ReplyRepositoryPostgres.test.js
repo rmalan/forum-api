@@ -7,6 +7,7 @@ const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const pool = require('../../database/postgres/pool');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
+const DetailReply = require('../../../Domains/replies/entities/DetailReply');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 
@@ -142,6 +143,37 @@ describe('ReplyRepositoryPostgres', () => {
 
         // Assert
         expect(deleteReply).toBe();
+      });
+    });
+
+    describe('getRepliesByCommentId function', () => {
+      it('should persist get replies by thread id and return detail replies correctly', async () => {
+        // Arrange
+        const commentId = 'comment-123';
+        const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
+
+        await UsersTableTestHelper.addUser({});
+        await ThreadsTableTestHelper.addThread({});
+        await CommentsTableTestHelper.addComment({ date: '2021-09-08T07:19:09.775Z' });
+        await RepliesTableTestHelper.addReply({ date: '2021-09-08T07:19:09.775Z' });
+
+        // Action
+        const detailReplies = await replyRepositoryPostgres.getRepliesByCommentId(commentId);
+
+        // Assert
+        const replies = await RepliesTableTestHelper.findRepliesByCommentId('comment-123');
+        expect(detailReplies).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining(new DetailReply({
+              id: 'reply-123',
+              username: 'dicoding',
+              date: '2021-09-08T07:19:09.775Z',
+              content: 'NewReply content',
+              isDelete: false,
+            })),
+          ]),
+        );
+        expect(replies).toHaveLength(1);
       });
     });
   });

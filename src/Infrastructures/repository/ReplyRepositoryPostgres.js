@@ -1,4 +1,5 @@
 const AddedReply = require('../../Domains/replies/entities/AddedReply');
+const DetailReply = require('../../Domains/replies/entities/DetailReply');
 const ReplyRepository = require('../../Domains/replies/ReplyRepository');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
@@ -23,6 +24,19 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     const result = await this._pool.query(query);
 
     return new AddedReply({ ...result.rows[0] });
+  }
+
+  async getRepliesByCommentId(commentId) {
+    const query = {
+      text: 'SELECT replies.id AS id, username, date, content, is_delete FROM replies JOIN users on owner = users.id WHERE comment_id = $1 ORDER BY date',
+      values: [commentId],
+    };
+    const result = await this._pool.query(query);
+
+    return result.rows.map((payload) => (new DetailReply({
+      ...payload,
+      isDelete: payload.is_delete,
+    })));
   }
 
   async verifyReplyOwner(replyId, owner) {

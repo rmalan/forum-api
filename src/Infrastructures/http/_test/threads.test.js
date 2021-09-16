@@ -1,6 +1,8 @@
 const pool = require('../../database/postgres/pool');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
+const RepliesTableTestHelper = require('../../../../tests/RepliesTableTestHelper');
 const injections = require('../../injections');
 const createServer = require('../createServer');
 
@@ -110,6 +112,8 @@ describe('/threads endpoint', () => {
 
       await UsersTableTestHelper.addUser({});
       await ThreadsTableTestHelper.addThread({});
+      await CommentsTableTestHelper.addComment({});
+      await RepliesTableTestHelper.addReply({});
 
       // Action
       const response = await server.inject({
@@ -123,6 +127,7 @@ describe('/threads endpoint', () => {
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.thread).toBeDefined();
       expect(responseJson.data.thread.comments).toBeDefined();
+      expect(responseJson.data.thread.comments[0].replies).toBeDefined();
     });
 
     it('should response 404 when thread not found', async () => {
