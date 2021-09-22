@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const DetailThread = require('../../../Domains/threads/entities/DetailThread');
@@ -26,8 +27,7 @@ describe('ThreadUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
 
     /** mocking needed function */
-    mockThreadRepository.addThread = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedAddedThread));
+    mockThreadRepository.addThread = jest.fn(() => Promise.resolve(expectedAddedThread));
 
     /** creating use case instance */
     const threadUseCase = new ThreadUseCase({
@@ -81,12 +81,9 @@ describe('ThreadUseCase', () => {
     const mockReplyRepository = new ReplyRepository();
 
     /** mocking needed function */
-    mockThreadRepository.getThreadById = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedDetailThread));
-    mockCommentRepository.getCommentsByThreadId = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedDetailComment));
-    mockReplyRepository.getRepliesByCommentId = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedDetailReply));
+    mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(expectedDetailThread));
+    mockCommentRepository.getCommentsByThreadId = jest.fn(() => Promise.resolve(expectedDetailComment));
+    mockReplyRepository.getRepliesByCommentId = jest.fn(() => Promise.resolve(expectedDetailReply));
 
     /** creating use case instance */
     const threadUseCase = new ThreadUseCase({
