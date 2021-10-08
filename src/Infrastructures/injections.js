@@ -12,6 +12,7 @@ const AuthenticationRepositoryPostgres = require('./repository/AuthenticationRep
 const ThreadRepositoryPostgres = require('./repository/ThreadRepositoryPostgres');
 const CommentRepositoryPostgres = require('./repository/CommentRepositoryPostgres');
 const ReplyRepositoryPostgres = require('./repository/ReplyRepositoryPostgres');
+const LikeRepositoryPostgres = require('./repository/LikeRepositoryPostgres');
 const BcryptEncryptionHelper = require('./security/BcryptEncryptionHelper');
 const JwtTokenManager = require('./security/JwtTokenManager');
 
@@ -23,6 +24,7 @@ const LogoutUserUseCase = require('../Applications/use_case/LogoutUserUseCase');
 const ThreadUseCase = require('../Applications/use_case/ThreadUseCase');
 const CommentUseCase = require('../Applications/use_case/CommentUseCase');
 const ReplyUseCase = require('../Applications/use_case/ReplyUseCase');
+const LikeUseCase = require('../Applications/use_case/LikeUseCase');
 
 const serviceInstanceContainer = {
   userRepository: new UserRepositoryPostgres(pool, nanoid),
@@ -30,6 +32,7 @@ const serviceInstanceContainer = {
   threadRepository: new ThreadRepositoryPostgres(pool, nanoid),
   commentRepository: new CommentRepositoryPostgres(pool, nanoid),
   replyRepository: new ReplyRepositoryPostgres(pool, nanoid),
+  likeRepository: new LikeRepositoryPostgres(pool, nanoid),
   encryptionHelper: new BcryptEncryptionHelper(bcrypt),
   authenticationTokenManager: new JwtTokenManager(Jwt.token),
 };
@@ -65,6 +68,11 @@ const useCaseInstanceContainer = {
     threadRepository: serviceInstanceContainer.threadRepository,
     commentRepository: serviceInstanceContainer.commentRepository,
     replyRepository: serviceInstanceContainer.replyRepository,
+  }),
+  likeUseCase: new LikeUseCase({
+    threadRepository: serviceInstanceContainer.threadRepository,
+    commentRepository: serviceInstanceContainer.commentRepository,
+    likeRepository: serviceInstanceContainer.likeRepository,
   }),
 };
 
