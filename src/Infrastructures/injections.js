@@ -59,6 +59,7 @@ const useCaseInstanceContainer = {
     threadRepository: serviceInstanceContainer.threadRepository,
     commentRepository: serviceInstanceContainer.commentRepository,
     replyRepository: serviceInstanceContainer.replyRepository,
+    likeRepository: serviceInstanceContainer.likeRepository,
   }),
   commentUseCase: new CommentUseCase({
     threadRepository: serviceInstanceContainer.threadRepository,

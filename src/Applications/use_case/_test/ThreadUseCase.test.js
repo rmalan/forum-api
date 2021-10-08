@@ -7,6 +7,7 @@ const DetailReply = require('../../../Domains/replies/entities/DetailReply');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
+const LikeRepository = require('../../../Domains/likes/LikeRepository');
 const ThreadUseCase = require('../ThreadUseCase');
 
 describe('ThreadUseCase', () => {
@@ -79,17 +80,20 @@ describe('ThreadUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
+    const mockLikeRepository = new LikeRepository();
 
     /** mocking needed function */
     mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(expectedDetailThread));
     mockCommentRepository.getCommentsByThreadId = jest.fn(() => Promise.resolve(expectedDetailComment));
     mockReplyRepository.getRepliesByCommentId = jest.fn(() => Promise.resolve(expectedDetailReply));
+    mockLikeRepository.getLikeCount = jest.fn(() => Promise.resolve());
 
     /** creating use case instance */
     const threadUseCase = new ThreadUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
+      likeRepository: mockLikeRepository,
     });
 
     // Action

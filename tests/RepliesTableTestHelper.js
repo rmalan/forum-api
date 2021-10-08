@@ -33,6 +33,16 @@ const RepliesTableTestHelper = {
     return result.rows;
   },
 
+  async getLikeCountByCommentId(commentId) {
+    const query = {
+      text: 'SELECT COUNT(*) FROM likes WHERE comment_id = $1',
+      values: [commentId],
+    };
+
+    const result = await pool.query(query);
+    return parseInt(result.rows[0].count, 10);
+  },
+
   async cleanTable() {
     await pool.query('DELETE FROM replies WHERE 1=1');
   },

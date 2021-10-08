@@ -101,5 +101,25 @@ describe('LikeRepositoryPostgres', () => {
         expect(removeLike).toBe();
       });
     });
+
+    describe('getLikeCount function', () => {
+      it('should return the number of likes for a comment', async () => {
+        // Arrange
+        const fakeIdGenerator = () => '123'; // stub!
+        const fakeComment = 'comment-123'; // stub!
+        const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, fakeIdGenerator);
+
+        await UsersTableTestHelper.addUser({});
+        await ThreadsTableTestHelper.addThread({});
+        await CommentsTableTestHelper.addComment({});
+        await LikesTableHelper.addLike({});
+
+        // Action
+        const likeCount = await likeRepositoryPostgres.getLikeCount(fakeComment);
+
+        // Assert
+        expect(likeCount).toBe(1);
+      });
+    });
   });
 });
