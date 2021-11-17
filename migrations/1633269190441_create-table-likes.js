@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-
 exports.up = (pgm) => {
   pgm.createTable('likes', {
     id: {
@@ -17,6 +15,7 @@ exports.up = (pgm) => {
     date: {
       type: 'text',
       notNull: true,
+      default: pgm.func('current_timestamp'),
     },
   });
 

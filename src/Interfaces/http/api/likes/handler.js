@@ -11,12 +11,9 @@ class LikesHandler {
 
     await this._likeUseCase.likeComment(threadId, commentId, credentialId);
 
-    const response = h.response({
+    return {
       status: 'success',
-    });
-
-    response.code(200);
-    return response;
+    };
   }
 }
 
